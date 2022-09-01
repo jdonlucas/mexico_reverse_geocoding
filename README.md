@@ -1,3 +1,5 @@
+Create a .env file with the following:
+
     # DB
     # Parameters used by db container
     POSTGRES_DB=<db_name>
