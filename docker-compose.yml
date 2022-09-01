@@ -1,0 +1,36 @@
+version: "3.7"
+services:
+  postgis:
+    container_name: reverse_geocoding_db
+    build:
+      context: ./db
+    volumes:
+      - geocoding_db_data:/var/lib/postgresql/data
+    env_file:
+      - ./.env
+    ports:
+        - 5433:5432
+    networks:
+      - reverse_geocoding
+  
+  graphql:
+    container_name: reverse_geocoding_graphql
+    restart: unless-stopped
+    build:
+        context: ./graphql
+    env_file:
+        - ./.env
+    depends_on:
+        - reverse_geocoding_db
+    networks:
+        - reverse_geocoding
+    ports:
+        - 5435:5433
+    command: ["--connection", "${DATABASE_URL}", "--port", "5433", "--schema", "public","--disable-default-mutations","--append-plugins", "postgraphile-plugin-connection-filter,@graphile/postgis,postgraphile-plugin-connection-filter-postgis"]
+
+
+networks:
+  reverse_geocoding:
+
+volumes:
+  geocoding_db_data:
